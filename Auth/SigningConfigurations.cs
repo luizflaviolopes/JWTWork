@@ -14,9 +14,8 @@ namespace Back.Auth
             {
                 Key = new RsaSecurityKey(provider.ExportParameters(true));
             }
-
             SigningCredentials = new SigningCredentials(
-                Key, SecurityAlgorithms.RsaSha256Signature);
+                Key, SecurityAlgorithms.HmacSha256);
         }
     }
 }
