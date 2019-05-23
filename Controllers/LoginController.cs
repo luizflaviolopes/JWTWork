@@ -8,6 +8,8 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
+using System.Text;
 
 namespace Back.Controllers
 {
@@ -17,9 +19,7 @@ namespace Back.Controllers
     {
         [HttpPost]
         public IActionResult Post(
-            userpost usuario,
-            [FromServices]SigningConfigurations signingConfigurations,
-            [FromServices]TokenConfigurations tokenConfigurations)
+            [FromForm]userpost usuario)
         {
             bool credenciaisValidas = false;
             //return new JsonResult("teste");
@@ -32,25 +32,23 @@ namespace Back.Controllers
             ClaimsIdentity identity = new ClaimsIdentity(
                 new GenericIdentity("Luiz Flavio", "Login"),
                 new[] {
-                                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
-                                     new Claim(JwtRegisteredClaimNames.UniqueName, "LFUser")
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
+                new Claim(JwtRegisteredClaimNames.UniqueName, "LFUser")
                 }
             );
 
             DateTime dataCriacao = DateTime.Now;
-            DateTime dataExpiracao = dataCriacao +
-                TimeSpan.FromSeconds(tokenConfigurations.Seconds);
-
+            DateTime dataExpiracao = dataCriacao + TimeSpan.FromSeconds(120);
+            
+            var keyAsBytes = Encoding.ASCII.GetBytes("TRON.TRON.TRON.TRON.");
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
             {
-                Issuer = tokenConfigurations.Issuer,
-                Audience = tokenConfigurations.Audience,
-                SigningCredentials = signingConfigurations.SigningCredentials,
+                Issuer = "TesteController",
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyAsBytes), SecurityAlgorithms.HmacSha256),
                 Subject = identity,
                 NotBefore = dataCriacao,
                 Expires = dataExpiracao,
-
             });
 
             var token = handler.WriteToken(securityToken);
@@ -72,6 +70,8 @@ namespace Back.Controllers
 
         }
 
+        [Authorize]
+        [HttpGet]
         public IActionResult Get()
         {
             return Ok("deu certo");

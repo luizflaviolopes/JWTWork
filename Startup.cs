@@ -13,6 +13,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Back.Auth;
 using Microsoft.AspNetCore.Authorization;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Back
 {
@@ -33,15 +35,8 @@ namespace Back
             var signingConfigurations = new SigningConfigurations();
             services.AddSingleton(signingConfigurations);
 
-            var tokenConfigurations = new TokenConfigurations()
-            {
-                Audience = "minha-aplicacao-de-dados",
-                Issuer = "minha-aplicacao-de-autenticacao",
-                Seconds = 120,
-            };
-
-            services.AddSingleton(tokenConfigurations);
-
+            var keyAsBytes = Encoding.ASCII.GetBytes("TRON.TRON.TRON.TRON.");
+            
 
             services.AddAuthentication(authOptions =>
             {
@@ -49,31 +44,23 @@ namespace Back
                 authOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(bearerOptions =>
             {
-                var paramsValidation = bearerOptions.TokenValidationParameters;
-                paramsValidation.IssuerSigningKey = signingConfigurations.Key;
-                paramsValidation.ValidAudience = tokenConfigurations.Audience;
-                paramsValidation.ValidIssuer = tokenConfigurations.Issuer;
+                bearerOptions.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(keyAsBytes);
+                bearerOptions.TokenValidationParameters.IssuerSigningKeyResolver = SecurityAlgorithms.HmacSha256
+                bearerOptions.TokenValidationParameters.ValidIssuer = "TesteController";
 
                 // Valida a assinatura de um token recebido
-                paramsValidation.ValidateIssuerSigningKey = true;
+                bearerOptions.TokenValidationParameters.ValidateIssuerSigningKey = true;
 
                 // Verifica se um token recebido ainda é válido
-                paramsValidation.ValidateLifetime = true;
+                bearerOptions.TokenValidationParameters.ValidateLifetime = true;
 
                 // Tempo de tolerância para a expiração de um token (utilizado
                 // caso haja problemas de sincronismo de horário entre diferentes
                 // computadores envolvidos no processo de comunicação)
-                paramsValidation.ClockSkew = TimeSpan.Zero;
+                bearerOptions.TokenValidationParameters.ClockSkew = TimeSpan.Zero;
             });
 
-            // Ativa o uso do token como forma de autorizar o acesso
-            // a recursos deste projeto
-            services.AddAuthorization(auth =>
-            {
-                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
-                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser().Build());
-            });
+            
 
 
         }
