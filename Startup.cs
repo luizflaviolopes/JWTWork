@@ -45,9 +45,10 @@ namespace Back
             }).AddJwtBearer(bearerOptions =>
             {
                 bearerOptions.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(keyAsBytes);
-                bearerOptions.TokenValidationParameters.IssuerSigningKeyResolver = SecurityAlgorithms.HmacSha256
-                bearerOptions.TokenValidationParameters.ValidIssuer = "TesteController";
 
+
+                bearerOptions.TokenValidationParameters.ValidateIssuer = false;
+                bearerOptions.TokenValidationParameters.ValidateAudience = false;
                 // Valida a assinatura de um token recebido
                 bearerOptions.TokenValidationParameters.ValidateIssuerSigningKey = true;
 
@@ -76,7 +77,7 @@ namespace Back
             {
                 app.UseHsts();
             }
-
+            app.UseAuthentication();
             app.UseMvc();
         }
     }

@@ -38,17 +38,15 @@ namespace Back.Controllers
             );
 
             DateTime dataCriacao = DateTime.Now;
-            DateTime dataExpiracao = dataCriacao + TimeSpan.FromSeconds(120);
+            DateTime dataExpiracao = dataCriacao.AddDays(1);
             
             var keyAsBytes = Encoding.ASCII.GetBytes("TRON.TRON.TRON.TRON.");
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
             {
-                Issuer = "TesteController",
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyAsBytes), SecurityAlgorithms.HmacSha256),
-                Subject = identity,
-                NotBefore = dataCriacao,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyAsBytes), SecurityAlgorithms.HmacSha256Signature),
                 Expires = dataExpiracao,
+                Issuer = "TesteJWT"
             });
 
             var token = handler.WriteToken(securityToken);
