@@ -19,7 +19,7 @@ namespace Back.Controllers
     {
         [HttpPost]
         public IActionResult Post(
-            [FromForm]userpost usuario)
+            userpost usuario)
         {
             bool credenciaisValidas = false;
             //return new JsonResult("teste");

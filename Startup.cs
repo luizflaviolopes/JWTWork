@@ -77,6 +77,7 @@ namespace Back
             {
                 app.UseHsts();
             }
+            app.UseCors(options=> options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseAuthentication();
             app.UseMvc();
         }
