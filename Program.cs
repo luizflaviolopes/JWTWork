@@ -18,7 +18,7 @@ namespace Back
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args).UseUrls("http://*:80", "http://localhost")
+            WebHost.CreateDefaultBuilder(args)//.UseUrls("http://*:80", "http://localhost")
                 .UseStartup<Startup>();
     }
 }

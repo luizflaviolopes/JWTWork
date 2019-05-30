@@ -26,29 +26,37 @@ namespace Back.Controllers
 
             //userpost user = usuario.ToObject<userpost>();
 
-            if (usuario.Login != "LF" && usuario.Password != "teste")
+            if ((usuario.Login != "LF" && usuario.Login != "Adm") && usuario.Password != "teste")
                 return Unauthorized();
 
             ClaimsIdentity identity = new ClaimsIdentity(
                 new GenericIdentity("Luiz Flavio", "Login"),
                 new[] {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
-                new Claim(JwtRegisteredClaimNames.UniqueName, "LFUser")
+                new Claim(JwtRegisteredClaimNames.UniqueName, "LFUser"),
                 }
             );
+
+            if(usuario.Login == "Adm")
+            identity.AddClaim(new Claim(ClaimTypes.Role, "admin"));
 
             DateTime dataCriacao = DateTime.Now;
             DateTime dataExpiracao = dataCriacao.AddDays(1);
             
             var keyAsBytes = Encoding.ASCII.GetBytes("TRON.TRON.TRON.TRON.");
             var handler = new JwtSecurityTokenHandler();
+
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
             {
+                
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyAsBytes), SecurityAlgorithms.HmacSha256Signature),
                 Expires = dataExpiracao,
-                Issuer = "TesteJWT"
-            });
+                Issuer = "TesteJWT",
+                Subject = identity,
+                
 
+            });
+            
             var token = handler.WriteToken(securityToken);
 
             return new JsonResult(new
@@ -72,7 +80,15 @@ namespace Back.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("deu certo");
+            return Ok("Foi");
+        }
+
+        [Authorize(Roles="admin")]
+        [HttpGet]
+        [Route("admin")]
+        public IActionResult adm()
+        {
+            return Ok("Fala Adm!!");
         }
 
     }
