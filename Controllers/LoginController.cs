@@ -30,18 +30,20 @@ namespace Back.Controllers
                 return Unauthorized();
 
             ClaimsIdentity identity = new ClaimsIdentity(
-                new GenericIdentity("Luiz Flavio", "Login"),
+                new GenericIdentity("Luiz Flavio"),
                 new[] {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
                 new Claim(JwtRegisteredClaimNames.UniqueName, "LFUser"),
+                new Claim(ClaimTypes.Role, "Chamados:Listar"),
+                new Claim(ClaimTypes.Role, "Chamados:Adicionar")
                 }
             );
 
-            if(usuario.Login == "Adm")
-            identity.AddClaim(new Claim(ClaimTypes.Role, "admin"));
+            /* if(usuario.Login == "Adm")
+            identity.AddClaim(new Claim(ClaimTypes.Role, "admin"));*/
 
             DateTime dataCriacao = DateTime.Now;
-            DateTime dataExpiracao = dataCriacao.AddDays(1);
+            DateTime dataExpiracao = dataCriacao.AddMinutes(30);
             
             var keyAsBytes = Encoding.ASCII.GetBytes("TRON.TRON.TRON.TRON.");
             var handler = new JwtSecurityTokenHandler();

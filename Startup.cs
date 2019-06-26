@@ -60,6 +60,7 @@ namespace Back
                 // computadores envolvidos no processo de comunicação)
                 bearerOptions.TokenValidationParameters.ClockSkew = TimeSpan.Zero;
             });
+            
 
             
 
